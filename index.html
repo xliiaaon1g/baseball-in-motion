@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Baseball pitch trajectory modeling and controlled video generation: experimental results, editable initial conditions, and FF/SL video demonstrations."><link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%228%22%20fill%3D%22%233265cd%22%2F%3E%3Ccircle%20cx%3D%2216%22%20cy%3D%2216%22%20r%3D%2211%22%20fill%3D%22white%22%2F%3E%3Cpath%20d%3D%22M10%207%20Q20%2016%2010%2025%20M22%207%20Q12%2016%2022%2025%22%20fill%3D%22none%22%20stroke%3D%22%23b64d56%22%20stroke-width%3D%221.6%22%2F%3E%3C%2Fsvg%3E">
+<title>Baseball in Motion — A Pilot Implementation</title><link rel="stylesheet" href="style.css"></head>
+<body>
+<header class="hero wrap"><!--<div class="eyebrow">PRIVATE MENTOR DEMONSTRATION · PHASE I</div>-->
+<h1>Baseball <span>in Motion</span></h1>
+<p class="subtitle">Pitch trajectory modeling and controlled video generation<br><span class="project-context">An experimental implementation in a fixed broadcast scene</span></p>
+<p class="author">Xiao Liang <span>·</span> liang567@purdue.edu <span>·</span> Department of Statistics </p>
+<nav class="actions"><a class="pill primary" href="#demo">▶ Watch the demonstration</a><a class="pill" href="baseball_report.pdf" target="_blank" rel="noopener">↗ Technical report</a><a class="pill" href="https://github.com/xliiaaon1g/baseball-pitch-trajectory-video-pilot" target="_blank" rel="noopener">↗ Public code</a>
+</nav>
+<p class="tldr">This project connects editable 3D baseball pitch states with camera projections and short, controlled video synthesis. It explores how initial velocity and pitch inputs affect the resulting motion in a fixed broadcast scene.</p>
+</header>
+<main>
+<section id="demo" class="wrap demo-section"><div class="section-kicker">01 / WATCH</div>
+<h2>Two pitch conditions, one scene</h2>
+<p class="lead">FF and SL conditions share the same initial position and camera. Compare the final composite with the raw neural output.</p><div class="toolbar"><div class="segmented" role="group" aria-label="Video representation"><button class="active" data-view="crop" aria-pressed="true">Composite close-up</button><button data-view="composite" aria-pressed="false">Full scene</button><button data-view="raw" aria-pressed="false">Raw neural output</button></div><div class="segmented" role="group" aria-label="Playback speed"><button data-speed="normal" aria-pressed="false">Real time</button><button class="active" data-speed="slow_5x" aria-pressed="true">5× slower</button></div></div><div class="video-grid"><article><div class="video-label"><strong>FF condition</strong><span>Four-seam fastball input</span></div><video id="ff" muted playsinline preload="auto" poster="ff_base_poster.png" aria-label="FF demonstration"></video></article><article><div class="video-label"><strong>SL condition</strong><span>Slider velocity + type input</span></div><video id="sl" muted playsinline preload="auto" poster="sl_variant_poster.png" aria-label="SL demonstration"></video></article></div><div class="playback"><button id="play" class="pill primary">▶ Play both</button><button id="restart" class="pill">↺ Restart</button><label for="frame">Frame</label><input id="frame" type="range" min="0" max="15" value="0" step="1"><output id="frame-label" for="frame">01 / 16</output></div>
+<p id="view-caption" class="caption" aria-live="polite"></p><div class="video-details">
+<p class="caption">16 frames · 0.250 s from first to last frame · 5× slow playback without interpolation. The SL condition changes both initial velocity and pitch type.</p>
+<p class="caption">Generated pixels are blended through a softened trajectory mask onto a ProPainter-repaired background. The close-up crops this final composite; raw output shows the uncomposited generation. Ball visibility: SL 16/16 frames; FF 12/16, with late helmet fusion. Generated-center accuracy has not been measured.</p></div>
+</section>
+<section class="tinted" id="approach">
+  <div class="wrap architecture-wrap">
+    <div class="section-kicker">02 / APPROACH</div>
+    <h2>Model architecture</h2>
+    <figure class="architecture-figure">
+      <a href="model_architecture.png" target="_blank" rel="noopener" aria-label="Open model architecture at full resolution"><img loading="lazy" src="model_architecture.png" alt="Project architecture: reference construction and camera estimation, BallODE training and controlled rollout, scene repair and frozen RGB-conditioned video synthesis"></a>
+      <figcaption>Click the diagram to view it at full resolution. For implementation details, see the <a href="baseball_report.pdf" target="_blank" rel="noopener">technical report</a>.</figcaption>
+    </figure>
+  </div>
+</section>
+<section class="wrap"><div class="section-kicker">03 / EXPERIMENT</div>
+<h2>Experimental results</h2><div class="stats"><div><strong>19</strong><span>Active pitches · 9 FF / 10 SL</span></div><div><strong>497</strong><span>Reviewed centers · 10 missing</span></div><div><strong>13 / 2 / 4</strong><span>Train / validation / test pitches</span></div><div><strong>1,443</strong><span>Trainable ODE parameters</span></div></div>
+<p class="caption">507 frames: 497 reviewed centers and 10 missing observations. Active subset: 19 pitches from a 30-pitch collection.</p><div class="setup-grid">
+  <div>
+<h3>Reference &amp; camera</h3>
+<p>Statcast-fitted 3D states + reviewed 2D centers; estimated effective camera held fixed. Initial states and timing use whole-pitch reference information.</p></div>
+  <div>
+<h3>Training setup</h3>
+<p>6D state + FF/SL code → 32 → 32 → 3 acceleration; explicit gravity. RK4 ≤ 1/240 s; Adam 0.001; seed 101; train-only normalization; validation-selected checkpoint.</p></div>
+</div>
+<div class="metrics"><div><span>Held-out state position RMSE</span><strong>0.0248 <small>m</small></strong></div><div><span>Projected-center median error</span><strong>1.28 <small>px</small></strong></div><div><span>Projected-center P90 error</span><strong>3.66 <small>px</small></strong></div></div>
+<p class="caption metric-context">State RMSE: fitted Statcast reference. Projection errors: 69 held-out future centers; P90 is the 90th-percentile pixel error. Reference projection: median 1.09 px / P90 2.73 px. These measure trajectory projection, not generated-video accuracy.</p><div class="two-column figures">
+<figure><img loading="lazy" src="training_curves.jpg" alt="Recorded training and validation curves"><figcaption>Training record and validation-selected checkpoint.</figcaption>
+</figure>
+<figure><img loading="lazy" src="heldout_errors.jpg" alt="Held-out trajectory and projection errors"><figcaption>Held-out state and projected-center errors.</figcaption>
+</figure></div>
+<details><summary>Inspect the camera fit and its ambiguity</summary><div class="two-column figures">
+<figure><img loading="lazy" src="camera_overlay.jpg" alt="Reference trajectory reprojected onto a broadcast frame"><figcaption>Reprojection of fitted reference states against reviewed observations.</figcaption>
+</figure>
+<figure><img loading="lazy" src="camera_ambiguity.jpg" alt="Camera focal length and distance ambiguity experiment"><figcaption>Alternative camera fits illustrate ambiguity, not recovered hardware calibration.</figcaption>
+</figure></div>
+</details>
+</section>
+<section class="tinted"><div class="wrap"><div class="section-kicker">04 / CONTROL</div>
+<h2>Change the input, inspect the projection</h2>
+<p class="lead">These curves are the actual stage-4 image trajectories under the same learned model and camera. They are predicted paths, not measured centers of generated balls.</p><div class="edit-layout"><div><div class="edit-buttons" role="group" aria-label="Initial state edit"><button class="active" data-case="sl_variant" aria-pressed="true">SL velocity + type</button><button data-case="ff_slower" aria-pressed="false">FF · velocity × 0.98</button><button data-case="ff_rightward" aria-pressed="false">FF · world vx + 0.35 m/s</button><button data-case="ff_upward" aria-pressed="false">FF · vz + 0.30 m/s</button></div>
+<p id="edit-description" class="note" aria-live="polite"></p>
+<p class="caption">The starting state is the first visible flight frame, not the release instant. World +x projects leftward in this camera; world and image directions should not be conflated.</p></div><div class="plot-panel"><svg id="trajectory-plot" viewBox="0 0 600 400" role="img" aria-label="Projected baseline and edited trajectories"></svg><div class="legend"><span class="base-dot"></span> FF baseline <span class="edit-dot"></span> Edited input</div></div></div></div>
+</section>
+<section class="wrap"><div class="section-kicker">05 / VISUAL EVIDENCE</div>
+<h2>Look beyond the final composite</h2>
+<p class="lead">Condition frames are guidance, not successful neural outputs by definition. The recorded comparisons below retain difficult frames.</p>
+<figure class="wide-figure"><img loading="lazy" src="background_repair.jpg" alt="Old-ball removal and temporal background repair comparison"><figcaption>Background preparation: original footage, old-ball removal, and temporal repair. Residual smears and scene damage remain possible.</figcaption>
+</figure><div class="two-column figures">
+<figure><img loading="lazy" src="ff_condition_vs_generated.jpg" alt="All FF conditioning and generated ball-region frames"><figcaption>FF: conditioning versus generated frames, including late helmet fusion.</figcaption>
+</figure>
+<figure><img loading="lazy" src="sl_condition_vs_generated.jpg" alt="All SL conditioning and generated ball-region frames"><figcaption>SL: conditioning versus generated frames. Visibility is not proof of geometric accuracy.</figcaption>
+</figure></div>
+<details><summary>Implementation snapshots</summary><div class="two-column figures">
+<figure><img loading="lazy" src="code_ode.png" alt="Actual neural ODE source code excerpt"><figcaption>Actual source excerpt: state dynamics and integration.</figcaption>
+</figure>
+<figure><img loading="lazy" src="code_generation.png" alt="Actual frozen video generation source code excerpt"><figcaption>Actual source excerpt: frozen video generation pipeline.</figcaption>
+</figure></div>
+</details>
+<p class="caption">Video synthesis: AnimateDiff with RGB SparseCtrl, 384 × 384, 16 conditioning frames, 20 steps, seed 101. ProPainter supplies the shared repaired background. Source and dependency details are recorded in the technical report.</p>
+</section>
+<section class="tinted"><div class="wrap"><div class="section-kicker">06 / NEXT</div>
+<h2>What this pilot leaves open</h2><div class="two-column prose"><div>
+<h3>Current limits</h3><ul><li>Small, fixed-scene sample; no demonstrated generalization to new cameras or sessions.</li><li>Reference-assisted initial states and uncertain camera parameters.</li><li>Very short video horizon, uncertain late FF frames, and no generated-center error metric.</li><li>Empirical ball appearance and blur; no reconstructed spin, exposure, or physical occlusion.</li></ul></div><div>
+<h3>Next experiments</h3><ul><li>Estimate initial state from a video prefix and quantify camera uncertainty.</li><li>Hold out recording sessions and compare with analytic trajectory baselines.</li><li>Vary velocity and pitch type separately; measure the generated ball centers.</li><li>Improve apparent diameter, motion blur and occlusion before extending the video horizon.</li></ul></div></div>
+<p class="closing">The outcome is an inspectable end-to-end prototype and a set of concrete research questions—not a validated general-purpose simulator.</p></div>
+</section>
+</main>
+<script src="trajectory-data.js"></script>
+<script src="app.js"></script>
+</body></html>
