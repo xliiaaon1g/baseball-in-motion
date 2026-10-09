@@ -6,7 +6,7 @@
 <h1>Baseball <span>in Motion</span></h1>
 <p class="subtitle">Pitch trajectory modeling and controlled video generation<br><span class="project-context">An experimental implementation in a fixed broadcast scene</span></p>
 <p class="author">Xiao Liang <span>·</span> liang567@purdue.edu <span>·</span> Department of Statistics </p>
-<nav class="actions"><a class="pill primary" href="#demo">▶ Watch the demonstration</a><a class="pill" href="baseball_report.pdf" target="_blank" rel="noopener">↗ Technical report</a><a class="pill" href="https://github.com/xliiaaon1g/baseball-pitch-trajectory-video-pilot" target="_blank" rel="noopener">↗ Public code</a>
+<nav class="actions"><a class="pill primary" href="#demo">▶ Watch the demonstration</a><a class="pill" href="baseball_report.pdf" target="_blank" rel="noopener">↗ Report</a><a class="pill" href="https://github.com/xliiaaon1g/baseball-trajectory-video" target="_blank" rel="noopener">↗ Public code</a>
 </nav>
 <p class="tldr">This project connects editable 3D baseball pitch states with camera projections and short, controlled video synthesis. It explores how initial velocity and pitch inputs affect the resulting motion in a fixed broadcast scene.</p>
 </header>
@@ -24,7 +24,7 @@
     <h2>Model architecture</h2>
     <figure class="architecture-figure">
       <a href="model_architecture.png" target="_blank" rel="noopener" aria-label="Open model architecture at full resolution"><img loading="lazy" src="model_architecture.png" alt="Project architecture: reference construction and camera estimation, BallODE training and controlled rollout, scene repair and frozen RGB-conditioned video synthesis"></a>
-      <figcaption>Click the diagram to view it at full resolution. For implementation details, see the <a href="baseball_report.pdf" target="_blank" rel="noopener">technical report</a>.</figcaption>
+      <figcaption>Click the diagram to view it at full resolution. For implementation details, see the <a href="baseball_report.pdf" target="_blank" rel="noopener">report</a>.</figcaption>
     </figure>
   </div>
 </section>
@@ -72,7 +72,7 @@
 <figure><img loading="lazy" src="code_generation.png" alt="Actual frozen video generation source code excerpt"><figcaption>Actual source excerpt: frozen video generation pipeline.</figcaption>
 </figure></div>
 </details>
-<p class="caption">Video synthesis: AnimateDiff with RGB SparseCtrl, 384 × 384, 16 conditioning frames, 20 steps, seed 101. ProPainter supplies the shared repaired background. Source and dependency details are recorded in the technical report.</p>
+<p class="caption">Video synthesis: AnimateDiff with RGB SparseCtrl, 384 × 384, 16 conditioning frames, 20 steps, seed 101. ProPainter supplies the shared repaired background. Source and dependency details are recorded in the report.</p>
 </section>
 <section class="tinted"><div class="wrap"><div class="section-kicker">06 / NEXT</div>
 <h2>What this pilot leaves open</h2><div class="two-column prose"><div>

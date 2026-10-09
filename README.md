@@ -2,9 +2,11 @@
 
 Pitch trajectory modeling and controlled video generation: a pilot implementation in a fixed broadcast scene.
 
+Live site: https://xliiaaon1g.github.io/baseball-in-motion/
+
 This repository hosts the complete project demonstration, including FF/SL video comparisons, experimental results, the architecture diagram, and the technical report.
 
-- Public implementation code: https://github.com/xliiaaon1g/baseball-pitch-trajectory-video-pilot
+- Public implementation code: https://github.com/xliiaaon1g/baseball-trajectory-video
 - Report: [baseball_report.pdf](baseball_report.pdf)
 
 ## Updating the page
